@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FraudShield - Insurance Management System</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="loginScreen" class="pg aw fi">
+  <div class="ac">
+    <div class="brand"><div class="bi">&#128737;</div><div><div class="bn">FraudShield</div><div class="bs">Insurance Management System</div></div></div>
+    <h2 class="at">Welcome back</h2>
+    <p class="as">Select your account type to sign in</p>
+    <div class="tt">
+      <div class="tb on" id="lt_admin" onclick="setLT('admin')"><span class="ti">&#9881;</span><span class="tl">Admin</span><div class="td">Full system access</div></div>
+      <div class="tb" id="lt_user" onclick="setLT('user')"><span class="ti">&#128100;</span><span class="tl">User</span><div class="td">Agents &amp; Investigators</div></div>
+    </div>
+    <div id="lSub" class="fg hidden"><label>Your Role</label><select id="lSubRole"><option value="agent">Insurance Agent</option><option value="investigator">Fraud Investigator</option></select></div>
+    <div class="fg"><label>Email Address</label><input type="text" id="lEmail" value="admin@company.com"></div>
+    <div class="fg"><label>Password</label><input type="password" id="lPass" value="password123"></div>
+    <button class="bp" onclick="doLogin()">Sign In</button>
+    <div class="sw">No account? <span class="al" onclick="showReg()">Register here</span></div>
+  </div>
+</div>
+
+<!-- REGISTER -->
+<div id="regScreen" class="pg aw hidden">
+  <div class="ac wd">
+    <div class="brand"><div class="bi">&#128737;</div><div><div class="bn">FraudShield</div><div class="bs">Insurance Management System</div></div></div>
+    <h2 class="at">Create account</h2>
+    <p class="as">Choose your account type to get started</p>
+    <div class="tt">
+      <div class="tb" id="rt_admin" onclick="setRT('admin')"><span class="ti">&#9881;</span><span class="tl">Admin</span><div class="td">Full system access</div></div>
+      <div class="tb on" id="rt_user" onclick="setRT('user')"><span class="ti">&#128100;</span><span class="tl">User</span><div class="td">Agents &amp; Investigators</div></div>
+    </div>
+    <div class="f2"><div class="fg"><label>First Name</label><input type="text" id="rFirst" placeholder="John"></div><div class="fg"><label>Last Name</label><input type="text" id="rLast" placeholder="Smith"></div></div>
+    <div class="fg"><label>Work Email</label><input type="text" id="rEmail" placeholder="john@company.com"></div>
+    <div class="fg"><label>Employee ID</label><input type="text" id="rEmpId" placeholder="EMP-XXXXX"></div>
+    <div id="rSubWrap" class="fg"><label>Role / Designation</label><select id="rSubRole"><option value="agent">Insurance Agent</option><option value="investigator">Fraud Investigator</option></select></div>
+    <div class="fg"><label>Department</label><select id="rDept"><option>Claims Department</option><option>Motor Insurance</option><option>Health Insurance</option><option>Property Insurance</option></select></div>
+    <div class="f2"><div class="fg"><label>Password</label><input type="password" id="rPass" placeholder="Create password"></div><div class="fg"><label>Confirm Password</label><input type="password" id="rPass2" placeholder="Confirm"></div></div>
+    <button class="bp" onclick="doReg()">Create Account</button>
+    <div class="sw">Have an account? <span class="al" onclick="showLogin()">Sign in</span></div>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div id="dashboard" class="shell hidden">
+
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div class="ts">
+      <span class="si">&#128269;</span>
+      <input type="text" id="gSearch" placeholder="Search claims, cases... (Ctrl+K)" oninput="doSearch(this.value)" onfocus="doSearch(this.value)" onblur="setTimeout(function(){var e=document.getElementById('sRes');if(e)e.innerHTML='';},180)">
+      <div id="sRes" class="sr" style="display:none"></div>
+    </div>
+    <div class="tr">
+      <div class="clk" id="clk">--:--</div>
+      <div class="ib" onclick="toggleNotif()">&#128276;<div class="nd" id="nd"></div></div>
+      <div class="ib" onclick="doExport()">&#128229;</div>
+      <div class="ib" onclick="toggleTheme()" id="themeBtn">&#127769;</div>
+      <div class="ib" onclick="toggleSettings()">&#9881;</div>
+      <div class="ib" onclick="showShortcuts()">&#9000;</div>
+    </div>
+  </div>
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sbb"><div class="bi">&#128737;</div><div class="bn">FraudShield</div></div>
+    <div><div class="nsl">Navigation</div><div id="navItems"></div></div>
+    <div class="sf">
+      <div class="uc" onclick="showProfile()">
+        <div class="av" id="sAv">A</div>
+        <div class="ui"><div class="un" id="sName">User</div><div class="ur" id="sRole">Role</div></div>
+      </div>
+      <button class="bl" onclick="doLogout()">Sign Out</button>
+    </div>
+  </div>
+
+  <div class="main">
+
+    <!-- ====================================================
+         AGENT VIEW — Can SUBMIT new claims, track own claims
+         ==================================================== -->
+    <div id="agentView" class="hidden">
+      <div class="tabs">
+        <div class="tab on" onclick="sTab('aDash','agent')">Dashboard</div>
+        <div class="tab" onclick="sTab('aNew','agent')">Submit Claim</div>
+        <div class="tab" onclick="sTab('aMy','agent')">My Claims</div>
+        <div class="tab" onclick="sTab('aYE','agent')">Year-End Report</div>
+      </div>
+
+      <!-- Agent Dashboard -->
+      <div id="aDash" class="section on fi">
+        <div class="ph"><div class="phl"><div class="pt">Agent Dashboard</div><div class="ps">Your claims filing overview</div></div><div class="pha"><button class="bico" onclick="doExport()">&#128229; Export</button><button class="ba2" onclick="sTab('aNew','agent');setNK('aNew')">+ Submit Claim</button></div></div>
+
+        <!-- Role Workflow Banner -->
+        <div class="wf-banner agent">
+          <div class="wf-icon">&#128100;</div>
+          <div>
+            <div class="wf-title">Your Role: Insurance Agent</div>
+            <div style="font-size:12px;color:var(--muted);margin-bottom:8px">You submit claims on behalf of customers. After submission, claims move through the review pipeline below.</div>
+            <div class="wf-steps">
+              <div class="wf-step mine">1. You Submit Claim</div>
+              <div style="color:var(--muted);font-size:12px;align-self:center">&#8594;</div>
+              <div class="wf-step inv-step">2. Investigator Reviews &amp; Flags</div>
+              <div style="color:var(--muted);font-size:12px;align-self:center">&#8594;</div>
+              <div class="wf-step adm-step">3. Admin Approves / Rejects</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="sg">
+          <div class="sc bl2" onclick="sTab('aMy','agent');setNK('aMy')"><div class="sico">&#128203;</div><div class="slb">Claims Filed (YTD)</div><div class="sv" id="aStT">142</div><div class="sch up">Up 12% this month</div></div>
+          <div class="sc tl"><div class="sico">&#10004;</div><div class="slb">Approved by Admin</div><div class="sv" id="aStA">98</div><div class="sch up">Up 8% vs last month</div></div>
+          <div class="sc am"><div class="sico">&#128270;</div><div class="slb">Under Investigation</div><div class="sv" id="aStI">28</div><div class="sch" style="color:var(--muted)">Investigator reviewing</div></div>
+          <div class="sc rd"><div class="sico">&#9873;</div><div class="slb">Flagged / Rejected</div><div class="sv" id="aStF">16</div><div class="sch dn">3 new flags today</div></div>
+        </div>
+        <div class="cr">
+          <div class="cc"><div class="ct">Claims Filed Per Month</div><div class="cs">Your 2024 filing activity</div><div style="position:relative;height:190px"><canvas id="agMC"></canvas></div></div>
+          <div class="cc"><div class="ct">My Claims Status</div><div class="cs">Current distribution</div><div style="position:relative;height:190px"><canvas id="agD"></canvas></div></div>
+        </div>
+        <div class="tc">
+          <div class="th2"><div class="tt2">Recent Submissions</div></div>
+          <table><thead><tr><th>Claim ID</th><th>Type</th><th>Amount</th><th>Submitted</th><th>Current Stage</th><th>Status</th></tr></thead>
+          <tbody id="agRecent">
+            <tr><td class="mono">CLM-8821</td><td>Motor</td><td>Rs 1,24,000</td><td>12 Jan</td><td style="font-size:11px;color:var(--teal)">Admin Approved</td><td><span class="badge bt">Approved</span></td></tr>
+            <tr><td class="mono">CLM-8839</td><td>Health</td><td>Rs 2,80,500</td><td>18 Jan</td><td style="font-size:11px;color:var(--amber)">Investigator Reviewing</td><td><span class="badge ba">Under Review</span></td></tr>
+            <tr><td class="mono">CLM-8847</td><td>Property</td><td>Rs 9,50,000</td><td>22 Jan</td><td style="font-size:11px;color:var(--red)">Flagged by Investigator</td><td><span class="badge br">Flagged</span></td></tr>
+            <tr><td class="mono">CLM-8854</td><td>Motor</td><td>Rs 68,000</td><td>25 Jan</td><td style="font-size:11px;color:var(--teal)">Admin Approved</td><td><span class="badge bt">Approved</span></td></tr>
+            <tr><td class="mono">CLM-8861</td><td>Life</td><td>Rs 14,20,000</td><td>28 Jan</td><td style="font-size:11px;color:var(--accent)">Awaiting Investigator</td><td><span class="badge bb">Submitted</span></td></tr>
+          </tbody></table>
+        </div>
+      </div>
+
+      <!-- Submit Claim -->
+      <div id="aNew" class="section">
+        <div class="ph"><div class="phl"><div class="pt">Submit New Claim</div><div class="ps">Fill all 3 steps — claim moves to Investigator after submission</div></div></div>
+        <div id="caBox"></div>
+        <div class="fcard">
+          <div class="steps" id="cSteps">
+            <div class="sti on2" id="cs1"><div class="stc">1</div><div class="stl">Policy Info</div><div class="sline"></div></div>
+            <div class="sti" id="cs2"><div class="stc">2</div><div class="stl">Incident Details</div><div class="sline"></div></div>
+            <div class="sti" id="cs3"><div class="stc">3</div><div class="stl">Documents &amp; Submit</div></div>
+          </div>
+          <div id="cS1">
+            <div class="ft">Policy Information</div><div class="fsub">Enter policyholder and coverage details</div>
+            <div class="f2"><div class="fg"><label>Policy Number *</label><input type="text" id="fPol" placeholder="POL-XXXXXXXX" oninput="lR()"><div class="fe hidden" id="ePol">Required</div></div><div class="fg"><label>Claim Type *</label><select id="fType" onchange="lR()"><option value="">Select type...</option><option value="Motor">Motor Insurance</option><option value="Health">Health Insurance</option><option value="Property">Property Insurance</option><option value="Life">Life Insurance</option><option value="Travel">Travel Insurance</option></select><div class="fe hidden" id="eType">Required</div></div></div>
+            <div class="f2"><div class="fg"><label>Claimant Full Name *</label><input type="text" id="fName" placeholder="As per policy document" oninput="lR()"><div class="fe hidden" id="eName">Required</div></div><div class="fg"><label>Claimant Mobile</label><input type="text" id="fMob" placeholder="+91 XXXXXXXXXX"></div></div>
+            <button class="ba2" onclick="gStep(2)">Next: Incident Details &#8594;</button>
+          </div>
+          <div id="cS2" class="hidden">
+            <div class="ft">Incident Details</div><div class="fsub">Accurate information ensures faster processing</div>
+            <div class="f3"><div class="fg"><label>Incident Date *</label><input type="text" id="fDate" placeholder="DD/MM/YYYY" oninput="lR()"><div class="fe hidden" id="eDate">Required</div></div><div class="fg"><label>Claim Amount (Rs) *</label><input type="text" id="fAmt" placeholder="0" oninput="lR()"><div class="fe hidden" id="eAmt">Required</div></div><div class="fg"><label>Incident Location</label><input type="text" id="fLoc" placeholder="City, State"></div></div>
+            <div class="fg"><label>Incident Description *</label><textarea id="fDesc" placeholder="Describe what happened in detail..." oninput="lR()"></textarea><div class="fe hidden" id="eDesc">Required</div></div>
+            <div class="f2"><div class="fg"><label>Prior Claims (Last 12 Months)</label><select id="fPrev" onchange="lR()"><option value="0">None</option><option value="1">1 claim</option><option value="2">2 claims</option><option value="3">3 or more</option></select></div><div class="fg"><label>Third-Party Involved?</label><select id="fTP" onchange="lR()"><option value="no">No</option><option value="yes">Yes</option></select></div></div>
+            <div class="rp" id="riskPrev">
+              <div class="rpt">Live Risk Assessment</div>
+              <div style="display:flex;align-items:center;gap:11px;margin-bottom:5px">
+                <div style="font-size:25px;font-weight:700;font-family:'JetBrains Mono',monospace;min-width:52px" id="rNum" style="color:var(--teal)">0</div>
+                <div style="flex:1"><div style="font-size:10.5px;color:var(--muted);margin-bottom:4px">Risk Score /100</div><div class="rb"><div class="rf" id="rFill" style="width:0%;background:var(--teal)"></div></div><div style="font-size:10.5px;margin-top:3px" id="rLbl">Fill in details above</div></div>
+              </div>
+              <div id="rFlags"></div>
+            </div>
+            <div style="display:flex;gap:9px;margin-top:13px"><button class="bsm" style="padding:8px 16px;font-size:12px" onclick="gStep(1)">&#8592; Back</button><button class="ba2" onclick="gStep(3)">Next: Documents &#8594;</button></div>
+          </div>
+          <div id="cS3" class="hidden">
+            <div class="ft">Documents &amp; Submit</div><div class="fsub">Attach supporting evidence for faster approval</div>
+            <div class="fg"><label>Primary Document Type *</label><select id="fDoc"><option value="">Select document...</option><option>FIR / Police Report</option><option>Hospital Bills &amp; Records</option><option>Repair Estimate / Bills</option><option>Photographs of Damage</option><option>Death Certificate</option><option>Driving License</option><option>Property Documents</option></select><div class="fe hidden" id="eDoc">Required</div></div>
+            <div class="fg"><label>Document Reference / Number</label><input type="text" id="fDocRef" placeholder="FIR No. / Hospital name / Bill No."></div>
+            <div class="fg"><label>Witness Information (Optional)</label><input type="text" id="fWit" placeholder="Name and contact number"></div>
+            <div class="fg"><label>Additional Notes</label><textarea id="fNote" placeholder="Any other relevant details..." style="min-height:65px"></textarea></div>
+            <div id="fSumm" style="background:var(--surface2);border:1px solid var(--border);border-radius:9px;padding:13px;margin-bottom:16px"></div>
+            <div style="display:flex;gap:9px"><button class="bsm" style="padding:8px 16px;font-size:12px" onclick="gStep(2)">&#8592; Back</button><button class="ba2" onclick="subClaim()">Submit to Investigator &#10003;</button></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- My Claims -->
+      <div id="aMy" class="section">
+        <div class="ph"><div class="phl"><div class="pt">My Claims</div><div class="ps">Track all claims you have submitted — see which stage each is at</div></div><div class="pha"><button class="bico" onclick="doExport()">&#128229; Export CSV</button><button class="ba2" onclick="sTab('aNew','agent');setNK('aNew')">+ Submit Claim</button></div></div>
+        <div class="alert ai">Claims submitted by you go to Investigator for review, then to Admin for final approval or rejection.</div>
+        <div class="tc">
+          <div class="th2"><div class="tt2">All Claims (<span id="myCC">142</span>)</div><div class="tb2"><select class="fs" id="cfType" onchange="filterC()"><option value="">All Types</option><option value="Motor">Motor</option><option value="Health">Health</option><option value="Property">Property</option><option value="Life">Life</option></select><select class="fs" id="cfSt" onchange="filterC()"><option value="">All Status</option><option value="Approved">Approved</option><option value="Under Review">Under Review</option><option value="Flagged">Flagged</option><option value="Submitted">Submitted</option><option value="Rejected">Rejected</option></select></div></div>
+          <table><thead><tr><th>Claim ID</th><th>Claimant</th><th>Type</th><th>Amount</th><th>Filed</th><th>Current Stage</th><th>Status</th><th>Risk Score</th></tr></thead>
+          <tbody id="myCB">
+            <tr data-type="Motor" data-status="Approved"><td class="mono">CLM-8821</td><td>Rahul Mehta</td><td>Motor</td><td>Rs 1,24,000</td><td>12 Jan</td><td style="font-size:11px;color:var(--teal)">Admin Approved</td><td><span class="badge bt">Approved</span></td><td style="color:var(--teal);font-family:'JetBrains Mono',monospace">12/100</td></tr>
+            <tr data-type="Health" data-status="Under Review"><td class="mono">CLM-8839</td><td>Priya Sharma</td><td>Health</td><td>Rs 2,80,500</td><td>18 Jan</td><td style="font-size:11px;color:var(--amber)">Investigator Reviewing</td><td><span class="badge ba">Under Review</span></td><td style="color:var(--amber);font-family:'JetBrains Mono',monospace">54/100</td></tr>
+            <tr data-type="Property" data-status="Flagged"><td class="mono">CLM-8847</td><td>Vikram Singh</td><td>Property</td><td>Rs 9,50,000</td><td>22 Jan</td><td style="font-size:11px;color:var(--red)">Flagged by Investigator</td><td><span class="badge br">Flagged</span></td><td style="color:var(--red);font-family:'JetBrains Mono',monospace">87/100</td></tr>
+            <tr data-type="Motor" data-status="Approved"><td class="mono">CLM-8854</td><td>Anita Verma</td><td>Motor</td><td>Rs 68,000</td><td>25 Jan</td><td style="font-size:11px;color:var(--teal)">Admin Approved</td><td><span class="badge bt">Approved</span></td><td style="color:var(--teal);font-family:'JetBrains Mono',monospace">8/100</td></tr>
+            <tr data-type="Health" data-status="Approved"><td class="mono">CLM-8878</td><td>Kavita Joshi</td><td>Health</td><td>Rs 3,10,000</td><td>2 Feb</td><td style="font-size:11px;color:var(--teal)">Admin Approved</td><td><span class="badge bt">Approved</span></td><td style="color:var(--teal);font-family:'JetBrains Mono',monospace">22/100</td></tr>
+            <tr data-type="Property" data-status="Rejected"><td class="mono">CLM-8899</td><td>Amit Kumar</td><td>Property</td><td>Rs 18,75,000</td><td>8 Feb</td><td style="font-size:11px;color:var(--red)">Admin Rejected</td><td><span class="badge br">Rejected</span></td><td style="color:var(--red);font-family:'JetBrains Mono',monospace">91/100</td></tr>
+          </tbody></table>
+        </div>
+      </div>
+
+      <div id="aYE" class="section"><div class="ph"><div class="phl"><div class="pt">Year-End Report 2024</div><div class="ps">Annual fraud detection performance</div></div></div><div id="yeA"></div></div>
+    </div>
+
+    <!-- ====================================================
+         INVESTIGATOR VIEW — Can REVIEW claims, mark fraud, flag
+         Cannot approve or reject — sends to Admin
+         ==================================================== -->
+    <div id="investigatorView" class="hidden">
+      <div class="tabs">
+        <div class="tab on" onclick="sTab('iDash','investigator')">Dashboard</div>
+        <div class="tab" onclick="sTab('iReview','investigator')">Review Claims</div>
+        <div class="tab" onclick="sTab('iQueue','investigator')">Investigation Queue</div>
+        <div class="tab" onclick="sTab('iAnalysis','investigator')">Analysis Tools</div>
+        <div class="tab" onclick="sTab('iYE','investigator')">Year-End Report</div>
+      </div>
+
+      <div id="iDash" class="section on fi">
+        <div class="ph"><div class="phl"><div class="pt">Investigator Dashboard</div><div class="ps">Review claims and detect fraud patterns</div></div></div>
+
+        <!-- Role Workflow Banner -->
+        <div class="wf-banner inv">
+          <div class="wf-icon">&#128270;</div>
+          <div>
+            <div class="wf-title">Your Role: Fraud Investigator</div>
+            <div style="font-size:12px;color:var(--muted);margin-bottom:8px">You review claims submitted by agents. You can mark claims as suspicious, flag for fraud, or clear them. Admin makes the final approval/rejection decision.</div>
+            <div class="wf-steps">
+              <div class="wf-step" style="color:var(--muted)">1. Agent Submits</div>
+              <div style="color:var(--muted);font-size:12px;align-self:center">&#8594;</div>
+              <div class="wf-step mine" style="border-color:var(--amber);color:var(--amber);background:rgba(255,181,71,0.1)">2. You Review &amp; Flag</div>
+              <div style="color:var(--muted);font-size:12px;align-self:center">&#8594;</div>
+              <div class="wf-step adm-step">3. Admin Final Decision</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="sg">
+          <div class="sc am" onclick="sTab('iReview','investigator');setNK('iReview')"><div class="sico">&#128203;</div><div class="slb">Awaiting Your Review</div><div class="sv">18</div><div class="sch dn">Action needed</div></div>
+          <div class="sc rd"><div class="sico">&#9873;</div><div class="slb">Flagged This Month</div><div class="sv">34</div><div class="sch up">Up 12% vs last month</div></div>
+          <div class="sc tl"><div class="sico">&#10004;</div><div class="slb">Cleared (Low Risk)</div><div class="sv">89</div><div class="sch up">Sent to Admin</div></div>
+          <div class="sc bl2"><div class="sico">&#128176;</div><div class="slb">Fraud Confirmed (YTD)</div><div class="sv">247</div><div class="sch up">Up 31% vs 2023</div></div>
+        </div>
+        <div class="cr">
+          <div class="cc"><div class="ct">Monthly Review Activity</div><div class="cs">Claims reviewed, flagged vs cleared — 2024</div><div style="position:relative;height:190px"><canvas id="invMC"></canvas></div></div>
+          <div class="cc"><div class="ct">Fraud by Category</div><div class="cs">Cases flagged per type</div><div style="position:relative;height:190px"><canvas id="invD"></canvas></div></div>
+        </div>
+        <div class="alert aw2">18 claims are awaiting your review. <span class="al" onclick="sTab('iReview','investigator');setNK('iReview')">Go to Review Claims &#8594;</span></div>
+      </div>
+
+      <!-- REVIEW CLAIMS — Investigator's main task -->
+      <div id="iReview" class="section">
+        <div class="ph"><div class="phl"><div class="pt">Review Claims</div><div class="ps">Examine each claim — flag suspicious ones, clear legitimate ones, then send to Admin</div></div></div>
+        <div class="alert aw2">You can: <b>Clear</b> (low risk, send to Admin for approval) &nbsp;|&nbsp; <b>Flag Suspicious</b> (medium risk, needs Admin review) &nbsp;|&nbsp; <b>Mark as Fraud</b> (high risk, recommend rejection)</div>
+
+        <div id="reviewCardsBox">
+          <!-- Review Card 1 -->
+          <div class="review-card urgent" id="rc_8847">
+            <div class="rc-top">
+              <div><div class="rc-id">CLM-8847</div><div style="font-size:11.5px;color:var(--muted);margin-top:2px">Submitted by Rahul Mehta &bull; 22 Jan 2024</div></div>
+              <div style="text-align:right"><div style="font-size:28px;font-weight:700;font-family:'JetBrains Mono',monospace;color:var(--red)">87<span style="font-size:14px">/100</span></div><div style="font-size:10.5px;color:var(--red)">HIGH RISK</div></div>
+            </div>
+            <div class="rc-body">
+              <div class="rc-field"><label>Claim Type</label><div class="val">Property Insurance</div></div>
+              <div class="rc-field"><label>Claim Amount</label><div class="val">Rs 9,50,000</div></div>
+              <div class="rc-field"><label>Incident Location</label><div class="val">Mumbai, MH</div></div>
+              <div class="rc-field"><label>Claimant</label><div class="val">Vikram Singh</div></div>
+              <div class="rc-field"><label>Policy No.</label><div class="val mono">POL-2291847</div></div>
+              <div class="rc-field"><label>Prior Claims</label><div class="val" style="color:var(--red)">3 in last 12 months</div></div>
+            </div>
+            <div class="rc-flags">
+              <div class="rc-flag-title">Detected Risk Factors</div>
+              <div class="rc-flag d">Claim amount is 340% above property insurance average</div>
+              <div class="rc-flag d">3 prior claims filed in the last 12 months</div>
+              <div class="rc-flag d">Third-party report inconsistency detected</div>
+            </div>
+            <div class="rc-actions">
+              <button class="bgreen" onclick="takeAction('8847','cleared','CLM-8847')">&#10004; Clear (Low Risk)</button>
+              <button class="bamb" onclick="takeAction('8847','flagged','CLM-8847')">&#9888; Flag Suspicious</button>
+              <button class="bred" onclick="takeAction('8847','fraud','CLM-8847')">&#10006; Mark as Fraud</button>
+            </div>
+          </div>
+
+          <!-- Review Card 2 -->
+          <div class="review-card medium" id="rc_8839">
+            <div class="rc-top">
+              <div><div class="rc-id">CLM-8839</div><div style="font-size:11.5px;color:var(--muted);margin-top:2px">Submitted by Kavita Joshi &bull; 18 Jan 2024</div></div>
+              <div style="text-align:right"><div style="font-size:28px;font-weight:700;font-family:'JetBrains Mono',monospace;color:var(--amber)">54<span style="font-size:14px">/100</span></div><div style="font-size:10.5px;color:var(--amber)">MEDIUM RISK</div></div>
+            </div>
+            <div class="rc-body">
+              <div class="rc-field"><label>Claim Type</label><div class="val">Health Insurance</div></div>
+              <div class="rc-field"><label>Claim Amount</label><div class="val">Rs 2,80,500</div></div>
+              <div class="rc-field"><label>Incident Location</label><div class="val">Pune, MH</div></div>
+              <div class="rc-field"><label>Claimant</label><div class="val">Priya Sharma</div></div>
+              <div class="rc-field"><label>Policy No.</label><div class="val mono">POL-1183920</div></div>
+              <div class="rc-field"><label>Prior Claims</label><div class="val" style="color:var(--amber)">1 in last 12 months</div></div>
+            </div>
+            <div class="rc-flags">
+              <div class="rc-flag-title">Detected Risk Factors</div>
+              <div class="rc-flag">Claim amount is 87% above health insurance average</div>
+              <div class="rc-flag">Medical records date inconsistency detected</div>
+            </div>
+            <div class="rc-actions">
+              <button class="bgreen" onclick="takeAction('8839','cleared','CLM-8839')">&#10004; Clear (Low Risk)</button>
+              <button class="bamb" onclick="takeAction('8839','flagged','CLM-8839')">&#9888; Flag Suspicious</button>
+              <button class="bred" onclick="takeAction('8839','fraud','CLM-8839')">&#10006; Mark as Fraud</button>
+            </div>
+          </div>
+
+          <!-- Review Card 3 -->
+          <div class="review-card" id="rc_8861">
+            <div class="rc-top">
+              <div><div class="rc-id">CLM-8861</div><div style="font-size:11.5px;color:var(--muted);margin-top:2px">Submitted by Rahul Mehta &bull; 28 Jan 2024</div></div>
+              <div style="text-align:right"><div style="font-size:28px;font-weight:700;font-family:'JetBrains Mono',monospace;color:var(--teal)">18<span style="font-size:14px">/100</span></div><div style="font-size:10.5px;color:var(--teal)">LOW RISK</div></div>
+            </div>
+            <div class="rc-body">
+              <div class="rc-field"><label>Claim Type</label><div class="val">Life Insurance</div></div>
+              <div class="rc-field"><label>Claim Amount</label><div class="val">Rs 14,20,000</div></div>
+              <div class="rc-field"><label>Incident Location</label><div class="val">Delhi, DL</div></div>
+              <div class="rc-field"><label>Claimant</label><div class="val">Suresh Nair</div></div>
+              <div class="rc-field"><label>Policy No.</label><div class="val mono">POL-9920031</div></div>
+              <div class="rc-field"><label>Prior Claims</label><div class="val" style="color:var(--teal)">None</div></div>
+            </div>
+            <div class="rc-flags">
+              <div class="rc-flag-title">Risk Factors</div>
+              <div class="rc-flag">Standard life claim — all documents verified</div>
+            </div>
+            <div class="rc-actions">
+              <button class="bgreen" onclick="takeAction('8861','cleared','CLM-8861')">&#10004; Clear (Low Risk)</button>
+              <button class="bamb" onclick="takeAction('8861','flagged','CLM-8861')">&#9888; Flag Suspicious</button>
+              <button class="bred" onclick="takeAction('8861','fraud','CLM-8861')">&#10006; Mark as Fraud</button>
+            </div>
+          </div>
+        </div>
+        <div id="allReviewedMsg" class="hidden" style="text-align:center;padding:40px;color:var(--muted);font-size:13px">All pending claims have been reviewed and sent to Admin.</div>
+      </div>
+
+      <!-- Investigation Queue -->
+      <div id="iQueue" class="section">
+        <div class="ph"><div class="phl"><div class="pt">Investigation Queue</div><div class="ps">Previously flagged — active investigations in progress</div></div></div>
+        <div class="tc">
+          <div class="th2"><div class="tt2">Active Investigations (34)</div></div>
+          <table><thead><tr><th>Priority</th><th>Case ID</th><th>Claim ID</th><th>Type</th><th>Amount</th><th>Risk Score</th><th>Red Flags</th><th>Action</th></tr></thead>
+          <tbody>
+            <tr style="background:rgba(255,84,112,0.04)"><td><span class="badge br pulse">URGENT</span></td><td class="mono">INV-438</td><td class="mono">CLM-8820</td><td>Motor</td><td>Rs 3,20,000</td><td style="color:var(--red);font-family:'JetBrains Mono',monospace;font-weight:700">91/100</td><td style="font-size:11.5px;color:var(--red)">Duplicate claim, exaggerated damage</td><td><button class="ba2" style="padding:6px 12px;font-size:11px" onclick="openCase('INV-438','CLM-8820','Motor','Rs 3,20,000',91,'Duplicate claim, exaggerated damage','URGENT')">Open Case</button></td></tr>
+            <tr style="background:rgba(255,84,112,0.04)"><td><span class="badge br">HIGH</span></td><td class="mono">INV-441</td><td class="mono">CLM-8847</td><td>Property</td><td>Rs 9,50,000</td><td style="color:var(--red);font-family:'JetBrains Mono',monospace;font-weight:700">87/100</td><td style="font-size:11.5px;color:var(--red)">Inflated valuation, prior claims</td><td><button class="ba2" style="padding:6px 12px;font-size:11px" onclick="openCase('INV-441','CLM-8847','Property','Rs 9,50,000',87,'Inflated valuation, prior claims','HIGH')">Open Case</button></td></tr>
+            <tr><td><span class="badge ba">MED</span></td><td class="mono">INV-435</td><td class="mono">CLM-8799</td><td>Health</td><td>Rs 1,80,000</td><td style="color:var(--amber);font-family:'JetBrains Mono',monospace;font-weight:700">62/100</td><td style="font-size:11.5px;color:var(--amber)">Medical records mismatch</td><td><button class="bsm" onclick="openCase('INV-435','CLM-8799','Health','Rs 1,80,000',62,'Medical records mismatch','MED')">Investigate</button></td></tr>
+            <tr><td><span class="badge bg">LOW</span></td><td class="mono">INV-430</td><td class="mono">CLM-8784</td><td>Motor</td><td>Rs 45,000</td><td style="color:var(--muted);font-family:'JetBrains Mono',monospace;font-weight:700">38/100</td><td style="font-size:11.5px;color:var(--muted)">Minor date discrepancy</td><td><button class="bsm" onclick="openCase('INV-430','CLM-8784','Motor','Rs 45,000',38,'Minor date discrepancy','LOW')">Investigate</button></td></tr>
+          </tbody></table>
+        </div>
+      </div>
+
+      <!-- Analysis Tools -->
+      <div id="iAnalysis" class="section">
+        <div class="ph"><div class="phl"><div class="pt">Analysis Tools</div><div class="ps">Fraud risk scoring and pattern detection</div></div></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:22px">
+          <div class="fcard" style="padding:20px">
+            <div class="ft" style="font-size:14px">Fraud Risk Scorer</div>
+            <div class="fsub" style="margin-bottom:14px">Enter claim ID to analyse fraud probability</div>
+            <div class="fg"><label>Claim ID</label><input type="text" id="scoreIn" value="CLM-8847"></div>
+            <button class="ba2" style="padding:9px 18px;font-size:12.5px;margin-top:0" onclick="runScore()">Run Analysis</button>
+            <div id="scoreRes" class="hidden" style="margin-top:16px">
+              <div style="font-size:11px;color:var(--muted);margin-bottom:5px">Fraud Probability Score</div>
+              <div style="font-size:36px;font-weight:700;color:var(--red);font-family:'JetBrains Mono',monospace">87<span style="font-size:15px">/100</span></div>
+              <div class="rb"><div class="rf" id="scoreBar" style="width:0%;background:linear-gradient(90deg,var(--amber),var(--red))"></div></div>
+              <div style="font-size:11.5px;color:var(--muted);margin-top:7px">Flag: Multiple claims in 6 months<br>Flag: Claim exceeds policy avg 340%<br>Flag: Third-party report inconsistency</div>
+            </div>
+          </div>
+          <div class="fcard" style="padding:20px">
+            <div class="ft" style="font-size:14px">Claimant History</div>
+            <div class="fsub" style="margin-bottom:14px">Check all past claims by policy holder</div>
+            <div class="fg"><label>Policy Number</label><input type="text" placeholder="POL-XXXXXXXX"></div>
+            <button class="ba2" style="padding:9px 18px;font-size:12.5px;margin-top:0" onclick="searchHistory()">Search History</button>
+          </div>
+        </div>
+        <div class="cc"><div class="ct">Fraud Pattern Heatmap 2024</div><div class="cs">Cases by month and insurance type</div><div style="position:relative;height:240px"><canvas id="heatmap"></canvas></div></div>
+      </div>
+
+      <div id="iYE" class="section"><div class="ph"><div class="phl"><div class="pt">Year-End Report 2024</div><div class="ps">Annual investigation performance</div></div></div><div id="yeI"></div></div>
+    </div>
+
+    <!-- ====================================================
+         ADMIN VIEW — Final APPROVE or REJECT decisions
+         Can see everything, manage users
+         ==================================================== -->
+    <div id="adminView" class="hidden">
+      <div class="tabs">
+        <div class="tab on" onclick="sTab('admDash','admin')">Overview</div>
+        <div class="tab" onclick="sTab('admApprove','admin')">Approve / Reject</div>
+        <div class="tab" onclick="sTab('admClaims','admin')">All Claims</div>
+        <div class="tab" onclick="sTab('admUsers','admin')">User Management</div>
+        <div class="tab" onclick="sTab('admYE','admin')">Year-End Report</div>
+      </div>
+
+      <div id="admDash" class="section on fi">
+        <div class="ph"><div class="phl"><div class="pt">Admin Overview</div><div class="ps">Full platform control and approval authority</div></div><div class="pha"><button class="bico" onclick="doExport()">&#128229; Export Report</button></div></div>
+
+        <!-- Role Workflow Banner -->
+        <div class="wf-banner adm">
+          <div class="wf-icon">&#9881;</div>
+          <div>
+            <div class="wf-title">Your Role: System Administrator</div>
+            <div style="font-size:12px;color:var(--muted);margin-bottom:8px">You have the final authority to Approve or Reject claims after the Investigator has reviewed them. You also manage all users and access the full system.</div>
+            <div class="wf-steps">
+              <div class="wf-step" style="color:var(--muted)">1. Agent Submits</div>
+              <div style="color:var(--muted);font-size:12px;align-self:center">&#8594;</div>
+              <div class="wf-step inv-step">2. Investigator Reviews</div>
+              <div style="color:var(--muted);font-size:12px;align-self:center">&#8594;</div>
+              <div class="wf-step mine" style="border-color:var(--teal);color:var(--teal);background:rgba(0,212,170,0.1)">3. You Approve / Reject</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="sg">
+          <div class="sc bl2"><div class="sico">&#128203;</div><div class="slb">Total Claims (YTD)</div><div class="sv">3,841</div><div class="sch up">Up 18% vs 2023</div></div>
+          <div class="sc am" onclick="sTab('admApprove','admin');setNK('admApprove')"><div class="sico">&#8987;</div><div class="slb">Awaiting Your Decision</div><div class="sv" id="pendingCount">12</div><div class="sch dn">Action required</div></div>
+          <div class="sc tl"><div class="sico">&#128176;</div><div class="slb">Loss Prevented (Rs Cr)</div><div class="sv">18.4</div><div class="sch up">Up 23% vs 2023</div></div>
+          <div class="sc rd"><div class="sico">&#128683;</div><div class="slb">Fraud Detected (YTD)</div><div class="sv">247</div><div class="sch up">6.4% fraud rate</div></div>
+        </div>
+        <div class="cr">
+          <div class="cc"><div class="ct">Claims vs Fraud Detected Monthly</div><div class="cs">System-wide 2024</div><div style="position:relative;height:200px"><canvas id="admMC"></canvas></div></div>
+          <div class="cc"><div class="ct">Loss Prevented by Category</div><div class="cs">Rs Lakhs per type</div><div style="position:relative;height:200px"><canvas id="admBC"></canvas></div></div>
+        </div>
+        <div class="alert as2">System health: All services operational. Detection accuracy: 94.2%. <span class="al" onclick="sTab('admApprove','admin');setNK('admApprove')">Review pending approvals (12) &#8594;</span></div>
+      </div>
+
+      <!-- APPROVE / REJECT — Admin's main task -->
+      <div id="admApprove" class="section">
+        <div class="ph"><div class="phl"><div class="pt">Approve / Reject Claims</div><div class="ps">Final decision — claims reviewed by Investigator are waiting for your authority</div></div></div>
+        <div class="alert ai">These claims have been reviewed by the Fraud Investigator. Your decision is final: <b>Approve</b> = claim is paid out &nbsp;|&nbsp; <b>Reject</b> = claim denied &nbsp;|&nbsp; <b>Return for Re-investigation</b> = send back to Investigator</div>
+
+        <div id="approveCardsBox">
+          <!-- Approve Card 1 — Flagged by investigator -->
+          <div class="review-card urgent" id="ac_8847">
+            <div class="rc-top">
+              <div><div class="rc-id">CLM-8847 <span class="badge br" style="font-size:10px;vertical-align:middle">FLAGGED BY INVESTIGATOR</span></div><div style="font-size:11.5px;color:var(--muted);margin-top:3px">Agent: Rahul Mehta &bull; Investigator: Divya Patel &bull; 22 Jan 2024</div></div>
+              <div style="text-align:right"><div style="font-size:28px;font-weight:700;font-family:'JetBrains Mono',monospace;color:var(--red)">87<span style="font-size:14px">/100</span></div><div style="font-size:10.5px;color:var(--red)">HIGH RISK</div></div>
+            </div>
+            <div class="rc-body">
+              <div class="rc-field"><label>Claim Type</label><div class="val">Property Insurance</div></div>
+              <div class="rc-field"><label>Claim Amount</label><div class="val">Rs 9,50,000</div></div>
+              <div class="rc-field"><label>Claimant</label><div class="val">Vikram Singh</div></div>
+              <div class="rc-field"><label>Policy No.</label><div class="val mono">POL-2291847</div></div>
+              <div class="rc-field"><label>Investigator Note</label><div class="val" style="color:var(--red);font-size:11.5px">Recommend rejection — likely fraud</div></div>
+              <div class="rc-field"><label>Prior Claims</label><div class="val" style="color:var(--red)">3 in 12 months</div></div>
+            </div>
+            <div class="rc-flags">
+              <div class="rc-flag-title">Investigator Findings</div>
+              <div class="rc-flag d">Claim amount 340% above property average</div>
+              <div class="rc-flag d">3 prior claims — suspected serial fraud</div>
+              <div class="rc-flag d">Third-party verification failed</div>
+            </div>
+            <div class="rc-actions">
+              <button class="bgreen" onclick="admDecision('8847','approved','CLM-8847')">&#10004; Approve Claim</button>
+              <button class="bred" onclick="admDecision('8847','rejected','CLM-8847')">&#10006; Reject Claim</button>
+              <button class="bamb" onclick="admDecision('8847','reinvestigate','CLM-8847')">&#8635; Return for Re-investigation</button>
+            </div>
+          </div>
+
+          <!-- Approve Card 2 — Cleared by investigator -->
+          <div class="review-card" id="ac_8861">
+            <div class="rc-top">
+              <div><div class="rc-id">CLM-8861 <span class="badge bt" style="font-size:10px;vertical-align:middle">CLEARED BY INVESTIGATOR</span></div><div style="font-size:11.5px;color:var(--muted);margin-top:3px">Agent: Rahul Mehta &bull; Investigator: Sanjay Kumar &bull; 28 Jan 2024</div></div>
+              <div style="text-align:right"><div style="font-size:28px;font-weight:700;font-family:'JetBrains Mono',monospace;color:var(--teal)">18<span style="font-size:14px">/100</span></div><div style="font-size:10.5px;color:var(--teal)">LOW RISK</div></div>
+            </div>
+            <div class="rc-body">
+              <div class="rc-field"><label>Claim Type</label><div class="val">Life Insurance</div></div>
+              <div class="rc-field"><label>Claim Amount</label><div class="val">Rs 14,20,000</div></div>
+              <div class="rc-field"><label>Claimant</label><div class="val">Suresh Nair</div></div>
+              <div class="rc-field"><label>Policy No.</label><div class="val mono">POL-9920031</div></div>
+              <div class="rc-field"><label>Investigator Note</label><div class="val" style="color:var(--teal);font-size:11.5px">Verified — all documents authentic</div></div>
+              <div class="rc-field"><label>Prior Claims</label><div class="val" style="color:var(--teal)">None</div></div>
+            </div>
+            <div class="rc-flags">
+              <div class="rc-flag-title">Investigator Findings</div>
+              <div class="rc-flag">Documents verified — death certificate authentic</div>
+              <div class="rc-flag">Policy in good standing for 8 years</div>
+            </div>
+            <div class="rc-actions">
+              <button class="bgreen" onclick="admDecision('8861','approved','CLM-8861')">&#10004; Approve Claim</button>
+              <button class="bred" onclick="admDecision('8861','rejected','CLM-8861')">&#10006; Reject Claim</button>
+              <button class="bamb" onclick="admDecision('8861','reinvestigate','CLM-8861')">&#8635; Return for Re-investigation</button>
+            </div>
+          </div>
+
+          <!-- Approve Card 3 -->
+          <div class="review-card medium" id="ac_8839">
+            <div class="rc-top">
+              <div><div class="rc-id">CLM-8839 <span class="badge ba" style="font-size:10px;vertical-align:middle">FLAGGED SUSPICIOUS</span></div><div style="font-size:11.5px;color:var(--muted);margin-top:3px">Agent: Kavita Joshi &bull; Investigator: Divya Patel &bull; 18 Jan 2024</div></div>
+              <div style="text-align:right"><div style="font-size:28px;font-weight:700;font-family:'JetBrains Mono',monospace;color:var(--amber)">54<span style="font-size:14px">/100</span></div><div style="font-size:10.5px;color:var(--amber)">MEDIUM RISK</div></div>
+            </div>
+            <div class="rc-body">
+              <div class="rc-field"><label>Claim Type</label><div class="val">Health Insurance</div></div>
+              <div class="rc-field"><label>Claim Amount</label><div class="val">Rs 2,80,500</div></div>
+              <div class="rc-field"><label>Claimant</label><div class="val">Priya Sharma</div></div>
+              <div class="rc-field"><label>Policy No.</label><div class="val mono">POL-1183920</div></div>
+              <div class="rc-field"><label>Investigator Note</label><div class="val" style="color:var(--amber);font-size:11.5px">Needs further scrutiny on dates</div></div>
+              <div class="rc-field"><label>Prior Claims</label><div class="val" style="color:var(--amber)">1 in 12 months</div></div>
+            </div>
+            <div class="rc-flags">
+              <div class="rc-flag-title">Investigator Findings</div>
+              <div class="rc-flag">Medical record dates inconsistency</div>
+              <div class="rc-flag">Claim amount above average but within tolerance</div>
+            </div>
+            <div class="rc-actions">
+              <button class="bgreen" onclick="admDecision('8839','approved','CLM-8839')">&#10004; Approve Claim</button>
+              <button class="bred" onclick="admDecision('8839','rejected','CLM-8839')">&#10006; Reject Claim</button>
+              <button class="bamb" onclick="admDecision('8839','reinvestigate','CLM-8839')">&#8635; Return for Re-investigation</button>
+            </div>
+          </div>
+        </div>
+        <div id="allApprovedMsg" class="hidden" style="text-align:center;padding:40px;color:var(--muted);font-size:13px">All pending claims have been processed. No items awaiting decision.</div>
+      </div>
+
+      <!-- All Claims Ledger -->
+      <div id="admClaims" class="section">
+        <div class="ph"><div class="phl"><div class="pt">All Claims</div><div class="ps">Complete system-wide claims ledger with full pipeline visibility</div></div><div class="pha"><button class="bico" onclick="doExport()">&#128229; Export CSV</button></div></div>
+        <div class="tc">
+          <div class="th2"><div class="tt2">3,841 total claims</div><div class="tb2"><select class="fs"><option>All Status</option><option>Approved</option><option>Rejected</option><option>Flagged</option><option>Under Review</option></select></div></div>
+          <table><thead><tr><th>Claim ID</th><th>Agent</th><th>Type</th><th>Amount</th><th>Investigator Action</th><th>Admin Decision</th><th>Risk</th><th>Final Status</th></tr></thead>
+          <tbody>
+            <tr><td class="mono">CLM-8899</td><td>R. Mehta</td><td>Property</td><td>Rs 18,75,000</td><td style="font-size:11px;color:var(--red)">Marked as Fraud</td><td style="font-size:11px;color:var(--red)">Rejected</td><td style="color:var(--red);font-family:'JetBrains Mono',monospace;font-weight:700">91</td><td><span class="badge br">Rejected — Fraud</span></td></tr>
+            <tr><td class="mono">CLM-8847</td><td>R. Mehta</td><td>Property</td><td>Rs 9,50,000</td><td style="font-size:11px;color:var(--red)">Flagged Suspicious</td><td style="font-size:11px;color:var(--amber)">Pending Decision</td><td style="color:var(--red);font-family:'JetBrains Mono',monospace;font-weight:700">87</td><td><span class="badge br">Flagged</span></td></tr>
+            <tr><td class="mono">CLM-8839</td><td>K. Joshi</td><td>Health</td><td>Rs 2,80,500</td><td style="font-size:11px;color:var(--amber)">Flagged Suspicious</td><td style="font-size:11px;color:var(--amber)">Pending Decision</td><td style="color:var(--amber);font-family:'JetBrains Mono',monospace;font-weight:700">54</td><td><span class="badge ba">Under Review</span></td></tr>
+            <tr><td class="mono">CLM-8861</td><td>R. Mehta</td><td>Life</td><td>Rs 14,20,000</td><td style="font-size:11px;color:var(--teal)">Cleared</td><td style="font-size:11px;color:var(--amber)">Pending Decision</td><td style="color:var(--amber);font-family:'JetBrains Mono',monospace;font-weight:700">18</td><td><span class="badge bb">Awaiting Admin</span></td></tr>
+            <tr><td class="mono">CLM-8878</td><td>K. Joshi</td><td>Health</td><td>Rs 3,10,000</td><td style="font-size:11px;color:var(--teal)">Cleared</td><td style="font-size:11px;color:var(--teal)">Approved</td><td style="color:var(--teal);font-family:'JetBrains Mono',monospace;font-weight:700">22</td><td><span class="badge bt">Approved</span></td></tr>
+            <tr><td class="mono">CLM-8821</td><td>R. Mehta</td><td>Motor</td><td>Rs 1,24,000</td><td style="font-size:11px;color:var(--teal)">Cleared</td><td style="font-size:11px;color:var(--teal)">Approved</td><td style="color:var(--teal);font-family:'JetBrains Mono',monospace;font-weight:700">12</td><td><span class="badge bt">Approved</span></td></tr>
+          </tbody></table>
+        </div>
+      </div>
+
+      <!-- User Management -->
+      <div id="admUsers" class="section">
+        <div class="ph"><div class="phl"><div class="pt">User Management</div><div class="ps">Manage all agents, investigators, and admins</div></div><div class="pha"><button class="ba2" style="font-size:12px;padding:9px 18px" onclick="openAddUser()">+ Add User</button></div></div>
+        <div class="tc">
+          <div class="th2"><div class="tt2">All Users (58)</div><div class="tb2"><select class="fs"><option>All Roles</option><option>Agent</option><option>Investigator</option><option>Admin</option></select></div></div>
+          <table><thead><tr><th>Name</th><th>Account Type</th><th>Role &amp; Permissions</th><th>Emp ID</th><th>Claims Filed</th><th>Status</th><th>Action</th></tr></thead>
+          <tbody>
+            <tr><td>Rahul Mehta</td><td><span class="badge bb">User</span></td><td><span class="badge ba">Can Submit Claims</span></td><td class="mono" data-emp="EMP-10021">EMP-10021</td><td>142</td><td><span class="badge bt">Active</span></td><td><button class="bsm" onclick="editUser('Rahul Mehta','EMP-10021','agent','Active')">Edit</button></td></tr>
+            <tr><td>Divya Patel</td><td><span class="badge bb">User</span></td><td><span class="badge" style="background:rgba(255,181,71,0.15);color:var(--amber)">Can Review &amp; Flag</span></td><td class="mono" data-emp="EMP-10034">EMP-10034</td><td>0</td><td><span class="badge bt">Active</span></td><td><button class="bsm" onclick="editUser('Rahul Mehta','EMP-10021','investigator','Active')">Edit</button></td></tr>
+            <tr><td>Sanjay Kumar</td><td><span class="badge bb">User</span></td><td><span class="badge" style="background:rgba(255,181,71,0.15);color:var(--amber)">Can Review &amp; Flag</span></td><td class="mono" data-emp="EMP-10038">EMP-10038</td><td>0</td><td><span class="badge bt">Active</span></td><td><button class="bsm" onclick="editUser('Sanjay Kumar','EMP-10038','investigator','Active')">Edit</button></td></tr>
+            <tr><td>Kavita Joshi</td><td><span class="badge bb">User</span></td><td><span class="badge ba">Can Submit Claims</span></td><td class="mono" data-emp="EMP-10019">EMP-10019</td><td>98</td><td><span class="badge bt">Active</span></td><td><button class="bsm" onclick="editUser('Kavita Joshi','EMP-10019','agent','Active')">Edit</button></td></tr>
+            <tr><td>Amit Verma</td><td><span class="badge bb">User</span></td><td><span class="badge ba">Can Submit Claims</span></td><td class="mono" data-emp="EMP-10055">EMP-10055</td><td>67</td><td><span class="badge bg">Inactive</span></td><td><button class="bsm" onclick="editUser('Amit Verma','EMP-10055','agent','Inactive')">Edit</button></td></tr>
+            <tr><td>Meena Singh</td><td><span class="badge br">Admin</span></td><td><span class="badge bt">Full Access + Approve/Reject</span></td><td class="mono" data-emp="EMP-10001">EMP-10001</td><td>0</td><td><span class="badge bt">Active</span></td><td><button class="bsm" onclick="editUser('Meena Singh','EMP-10001','admin','Active')">Edit</button></td></tr>
+          </tbody></table>
+        </div>
+      </div>
+
+      <div id="admYE" class="section"><div class="ph"><div class="phl"><div class="pt">Year-End Report 2024</div><div class="ps">Executive summary — fraud detection and financial performance</div></div><div class="pha"><button class="bico" onclick="doExport()">&#128229; Export PDF</button></div></div><div id="yeAdm"></div></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- NOTIFICATIONS -->
+<div id="notifPanel">
+  <div class="np-head"><span class="np-title">Notifications</span><button class="bsm" onclick="clearN()">Clear all</button></div>
+  <div class="nitem unread"><div class="ntitle">HIGH RISK: CLM-8947 flagged by investigator — awaiting admin decision</div><div class="ntime">2 minutes ago</div></div>
+  <div class="nitem unread"><div class="ntitle">CLM-8861 cleared by investigator — ready for admin approval</div><div class="ntime">15 minutes ago</div></div>
+  <div class="nitem unread"><div class="ntitle">New claim CLM-8972 submitted by agent — awaiting investigation</div><div class="ntime">42 minutes ago</div></div>
+  <div class="nitem"><div class="ntitle">CLM-8899 rejected — fraud confirmed, loss of Rs 18.75L prevented</div><div class="ntime">2 hours ago</div></div>
+  <div class="nitem"><div class="ntitle">Monthly fraud report ready for review</div><div class="ntime">Yesterday</div></div>
+</div>
+
+<!-- SETTINGS -->
+<div id="settingsPanel">
+  <div class="stitle">Settings</div>
+  <div class="srow"><div><div style="font-size:12.5px">Dark Mode</div><div style="font-size:10.5px;color:var(--muted)">Toggle dark / light theme</div></div><div class="tsw on" id="thTog" onclick="toggleTheme()"><div class="tkn"></div></div></div>
+  <div class="srow"><div><div style="font-size:12.5px">Notifications</div><div style="font-size:10.5px;color:var(--muted)">Real-time fraud alerts</div></div><div class="tsw on" onclick="this.classList.toggle('on')"><div class="tkn"></div></div></div>
+  <div class="srow"><div><div style="font-size:12.5px">Live Risk Scoring</div><div style="font-size:10.5px;color:var(--muted)">Updates on claim form</div></div><div class="tsw on" onclick="this.classList.toggle('on')"><div class="tkn"></div></div></div>
+</div>
+
+<!-- SHORTCUTS MODAL -->
+<div id="shortcutsMod">
+  <div class="shcard">
+    <div style="display:flex;justify-content:space-between;margin-bottom:18px"><div style="font-size:16px;font-weight:700">Keyboard Shortcuts</div><button class="bsm" onclick="closeShortcuts()">Close</button></div>
+    <div class="shrow"><span>Search</span><div><span class="kbd">Ctrl</span> <span class="kbd">K</span></div></div>
+    <div class="shrow"><span>Toggle theme</span><div><span class="kbd">T</span></div></div>
+    <div class="shrow"><span>Notifications</span><div><span class="kbd">N</span></div></div>
+    <div class="shrow"><span>Settings</span><div><span class="kbd">S</span></div></div>
+    <div class="shrow"><span>Export</span><div><span class="kbd">E</span></div></div>
+    <div class="shrow"><span>Chatbot</span><div><span class="kbd">C</span></div></div>
+    <div class="shrow"><span>Profile</span><div><span class="kbd">P</span></div></div>
+    <div class="shrow"><span>This help</span><div><span class="kbd">?</span></div></div>
+  </div>
+</div>
+
+<!-- PROFILE -->
+<div id="profileMod">
+  <div class="prcard">
+    <div style="display:flex;justify-content:space-between;margin-bottom:18px"><div style="font-size:16px;font-weight:700">My Profile</div><button class="bsm" onclick="closePr()">Close</button></div>
+    <div class="prav" id="prAv">A</div>
+    <div style="text-align:center;margin-bottom:18px"><div style="font-size:17px;font-weight:700" id="prName">User</div><div style="font-size:12px;color:var(--muted);margin-top:3px" id="prRole">Role</div></div>
+    <div style="background:var(--surface2);border-radius:9px;padding:13px">
+      <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);font-size:12.5px"><span style="color:var(--muted)">Employee ID</span><span class="mono">EMP-10001</span></div>
+      <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);font-size:12.5px"><span style="color:var(--muted)">Permissions</span><span id="prPerms" style="font-size:11.5px">Full Access</span></div>
+      <div style="display:flex;justify-content:space-between;padding:6px 0;font-size:12.5px"><span style="color:var(--muted)">Status</span><span style="color:var(--teal)">Active</span></div>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<!-- CHATBOT -->
+<button id="chatFab" onclick="togChat()">&#129302;</button>
+<div id="chatWin">
+  <div class="cha"><div class="chav">&#129302;</div><div><div class="chn">FraudShield AI</div><div class="chs">Online - AI Assistant</div></div><button class="chx" onclick="togChat()">&#10005;</button></div>
+  <div class="msgs" id="msgs"></div>
+  <div class="chips" id="chips"></div>
+  <div class="chfoot"><input id="chatIn" type="text" placeholder="Ask about claims, roles..." autocomplete="off" onkeydown="if(event.key==='Enter'){event.preventDefault();sendC();}"><button id="chatBtn" onclick="sendC()">&#9658;</button></div>
+</div>
+
+
+
+<!-- ── CASE DETAIL MODAL ── -->
+<div class="modal-overlay" id="caseMod">
+  <div class="modal-box">
+    <div class="modal-head">
+      <div>
+        <div class="modal-title" id="caseModTitle">INV-438</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:2px" id="caseModSub">Investigation Case</div>
+      </div>
+      <button class="modal-close" onclick="closeModal('caseMod')">&#10005;</button>
+    </div>
+    <div class="modal-body">
+      <!-- Risk Score Hero -->
+      <div style="background:var(--surface2);border-radius:12px;padding:16px;margin-bottom:18px;display:flex;align-items:center;gap:16px;">
+        <div style="text-align:center;flex-shrink:0;">
+          <div style="font-size:38px;font-weight:700;font-family:'JetBrains Mono',monospace;" id="caseScore">91</div>
+          <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px">Risk Score</div>
+        </div>
+        <div style="flex:1">
+          <div style="height:8px;background:var(--surface3);border-radius:4px;overflow:hidden;margin-bottom:8px">
+            <div id="caseScoreBar" style="height:100%;border-radius:4px;transition:width 1s ease;"></div>
+          </div>
+          <div style="font-size:13px;font-weight:600;" id="caseRiskLabel">High Risk — Investigation Required</div>
+          <div style="font-size:11.5px;color:var(--muted);margin-top:2px" id="casePriority">Priority: URGENT</div>
+        </div>
+      </div>
+
+      <!-- Case Details -->
+      <div class="case-stat-row" id="caseStats"></div>
+
+      <!-- Investigation Notes -->
+      <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;font-weight:600">Investigation Notes</div>
+      <div class="notes-box" id="caseNotes">Reviewing reported claim details against policy records and third-party data sources. Initial analysis indicates potential discrepancies in reported damage value.</div>
+
+      <!-- Case Timeline -->
+      <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px;font-weight:600">Case Timeline</div>
+      <div class="timeline" id="caseTL"></div>
+
+      <!-- Update Notes -->
+      <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;font-weight:600;margin-top:16px">Add Investigation Note</div>
+      <textarea id="caseNoteInput" placeholder="Enter your findings, observations, or next steps..." style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:9px;padding:10px 13px;color:var(--text);font-family:'Sora',sans-serif;font-size:13px;outline:none;resize:vertical;min-height:80px;"></textarea>
+    </div>
+    <div class="modal-foot">
+      <button class="bsm" onclick="closeModal('caseMod')">Close</button>
+      <button class="bamb" onclick="saveCaseNote()">Save Note</button>
+      <button class="bred" onclick="escalateCase()">Escalate to Admin</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── EDIT USER MODAL ── -->
+<div class="modal-overlay" id="editUserMod">
+  <div class="modal-box" style="max-width:460px;">
+    <div class="modal-head">
+      <div class="modal-title">Edit User</div>
+      <button class="modal-close" onclick="closeModal('editUserMod')">&#10005;</button>
+    </div>
+    <div class="modal-body">
+      <div style="text-align:center;margin-bottom:20px;">
+        <div style="width:60px;height:60px;border-radius:14px;background:linear-gradient(135deg,var(--accent),#8b5cf6);display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;color:#fff;margin:0 auto 10px;" id="euAvatar">R</div>
+        <div style="font-size:16px;font-weight:700;" id="euName">Rahul Mehta</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:2px;" id="euEmpId">EMP-10021</div>
+      </div>
+      <div class="fg"><label>Full Name</label><input type="text" id="euNameInput" placeholder="Full name"></div>
+      <div class="fg"><label>Role / Designation</label>
+        <select id="euRole">
+          <option value="agent">Insurance Agent</option>
+          <option value="investigator">Fraud Investigator</option>
+          <option value="admin">Administrator</option>
+        </select>
+      </div>
+      <div class="fg"><label>Department</label>
+        <select id="euDept">
+          <option>Claims Department</option>
+          <option>Motor Insurance</option>
+          <option>Health Insurance</option>
+          <option>Property Insurance</option>
+        </select>
+      </div>
+      <div class="fg"><label>Account Status</label>
+        <select id="euStatus">
+          <option value="Active">Active</option>
+          <option value="Inactive">Inactive</option>
+          <option value="Suspended">Suspended</option>
+        </select>
+      </div>
+      <div class="fg"><label>Reset Password (leave blank to keep current)</label><input type="password" id="euPass" placeholder="New password"></div>
+    </div>
+    <div class="modal-foot">
+      <button class="bred" onclick="deleteUser()">Deactivate User</button>
+      <button class="bsm" onclick="closeModal('editUserMod')">Cancel</button>
+      <button class="ba2" onclick="saveUser()">Save Changes</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── ADD USER MODAL ── -->
+<div class="modal-overlay" id="addUserMod">
+  <div class="modal-box" style="max-width:480px;">
+    <div class="modal-head">
+      <div class="modal-title">Add New User</div>
+      <button class="modal-close" onclick="closeModal('addUserMod')">&#10005;</button>
+    </div>
+    <div class="modal-body">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:13px;">
+        <div class="fg"><label>First Name *</label><input type="text" id="auFirst" placeholder="John"></div>
+        <div class="fg"><label>Last Name *</label><input type="text" id="auLast" placeholder="Smith"></div>
+      </div>
+      <div class="fg"><label>Work Email *</label><input type="text" id="auEmail" placeholder="john@company.com"></div>
+      <div class="fg"><label>Employee ID *</label><input type="text" id="auEmpId" placeholder="EMP-XXXXX"></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:13px;">
+        <div class="fg"><label>Account Type *</label>
+          <select id="auType" onchange="toggleAuRole()">
+            <option value="user">User</option>
+            <option value="admin">Admin</option>
+          </select>
+        </div>
+        <div class="fg" id="auRoleWrap"><label>Role *</label>
+          <select id="auRole">
+            <option value="agent">Insurance Agent</option>
+            <option value="investigator">Fraud Investigator</option>
+          </select>
+        </div>
+      </div>
+      <div class="fg"><label>Department</label>
+        <select id="auDept">
+          <option>Claims Department</option>
+          <option>Motor Insurance</option>
+          <option>Health Insurance</option>
+          <option>Property Insurance</option>
+        </select>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:13px;">
+        <div class="fg"><label>Password *</label><input type="password" id="auPass" placeholder="Temporary password"></div>
+        <div class="fg"><label>Confirm Password *</label><input type="password" id="auPass2" placeholder="Confirm"></div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="bsm" onclick="closeModal('addUserMod')">Cancel</button>
+      <button class="ba2" onclick="createUser()">Create User</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── CLAIM HISTORY MODAL ── -->
+<div class="modal-overlay" id="historyMod">
+  <div class="modal-box" style="max-width:500px;">
+    <div class="modal-head">
+      <div>
+        <div class="modal-title">Claimant History</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:2px" id="histModSub">Loading...</div>
+      </div>
+      <button class="modal-close" onclick="closeModal('historyMod')">&#10005;</button>
+    </div>
+    <div class="modal-body" id="histModBody">
+      <div style="text-align:center;padding:30px;color:var(--muted)">Searching records...</div>
+    </div>
+    <div class="modal-foot">
+      <button class="bsm" onclick="closeModal('historyMod')">Close</button>
+      <button class="bico" onclick="doExport()">&#128229; Export History</button>
+    </div>
+  </div>
+</div>
+
+<script src="script.js"></script></body>
+</html>
+
