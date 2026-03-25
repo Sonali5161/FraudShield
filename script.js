@@ -860,3 +860,65 @@ launch = function(){
 };
 
 document.getElementById('lEmail').value='admin@company.com';
+
+
+/* ══════════════════════════════════════════════════════════════════════ */
+/*                        MOBILE MENU FUNCTIONS                           */
+/* ══════════════════════════════════════════════════════════════════════ */
+
+function toggleMobileMenu() {
+    var sidebar = document.querySelector('.sidebar');
+    var overlay = document.getElementById('mobileOverlay');
+    
+    if (sidebar && overlay) {
+        sidebar.classList.toggle('mobile-open');
+        overlay.classList.toggle('active');
+        
+        // Prevent body scroll when menu is open
+        if (sidebar.classList.contains('mobile-open')) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = '';
+        }
+    }
+}
+
+function closeMobileMenu() {
+    var sidebar = document.querySelector('.sidebar');
+    var overlay = document.getElementById('mobileOverlay');
+    
+    if (sidebar && overlay) {
+        sidebar.classList.remove('mobile-open');
+        overlay.classList.remove('active');
+        document.body.style.overflow = '';
+    }
+}
+
+// Close mobile menu when clicking on navigation items
+function setNE(el) {
+    document.querySelectorAll('.ni').forEach(function(n) {
+        n.classList.remove('on');
+    });
+    el.classList.add('on');
+    
+    // Close mobile menu on mobile devices
+    if (window.innerWidth <= 768) {
+        closeMobileMenu();
+    }
+}
+
+// Close mobile menu on window resize if screen becomes larger
+window.addEventListener('resize', function() {
+    if (window.innerWidth > 768) {
+        closeMobileMenu();
+    }
+});
+
+// Handle orientation change
+window.addEventListener('orientationchange', function() {
+    setTimeout(function() {
+        if (window.innerWidth > 768) {
+            closeMobileMenu();
+        }
+    }, 100);
+});

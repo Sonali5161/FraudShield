@@ -292,3 +292,856 @@ tr:last-child td{border-bottom:none;}tr:hover td{background:var(--glow);}
 .history-row:last-child{border-bottom:none;}
 
 
+
+
+/* ══════════════════════════════════════════════════════════════════════ */
+/*                        MOBILE RESPONSIVE STYLES                        */
+/* ══════════════════════════════════════════════════════════════════════ */
+
+/* Mobile Menu Toggle Button */
+.mobile-menu-toggle {
+    display: none;
+    position: fixed;
+    top: 12px;
+    left: 12px;
+    z-index: 250;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    width: 40px;
+    height: 40px;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 20px;
+    color: var(--text);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+
+.mobile-menu-toggle:active {
+    transform: scale(0.95);
+}
+
+/* Overlay for mobile menu */
+.mobile-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 190;
+}
+
+.mobile-overlay.active {
+    display: block;
+}
+
+/* Tablet Styles (768px - 1024px) */
+@media screen and (max-width: 1024px) {
+    :root {
+        --sw: 200px;
+    }
+    
+    .main {
+        padding: 72px 20px 20px;
+    }
+    
+    .sg {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+    }
+    
+    .cr {
+        grid-template-columns: 1fr;
+    }
+    
+    .ph {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .pha {
+        width: 100%;
+        justify-content: flex-start;
+    }
+}
+
+/* Mobile Styles (max-width: 768px) */
+@media screen and (max-width: 768px) {
+    :root {
+        --sw: 0px;
+    }
+    
+    /* Show mobile menu toggle */
+    .mobile-menu-toggle {
+        display: flex;
+    }
+    
+    /* Hide sidebar by default on mobile */
+    .sidebar {
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+        width: 280px;
+        z-index: 200;
+    }
+    
+    .sidebar.mobile-open {
+        transform: translateX(0);
+    }
+    
+    /* Adjust main content for mobile */
+    .main {
+        margin-left: 0;
+        padding: 70px 16px 16px;
+        width: 100%;
+    }
+    
+    /* Topbar adjustments */
+    .topbar {
+        left: 0;
+        padding: 0 16px 0 60px;
+        height: 60px;
+    }
+    
+    .ts {
+        max-width: 100%;
+    }
+    
+    .ts input {
+        font-size: 14px;
+        padding: 8px 12px 8px 36px;
+    }
+    
+    .tr {
+        gap: 6px;
+    }
+    
+    .ib {
+        width: 36px;
+        height: 36px;
+        font-size: 16px;
+    }
+    
+    .clk {
+        display: none;
+    }
+    
+    /* Auth screens */
+    .aw {
+        padding: 16px;
+    }
+    
+    .ac {
+        padding: 32px 24px;
+        border-radius: 16px;
+    }
+    
+    .ac.wd {
+        max-width: 100%;
+    }
+    
+    .brand {
+        margin-bottom: 24px;
+    }
+    
+    .at {
+        font-size: 22px;
+    }
+    
+    .as {
+        font-size: 12px;
+    }
+    
+    /* Form adjustments */
+    .f2, .f3 {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+    
+    .tt {
+        gap: 8px;
+    }
+    
+    .tb {
+        padding: 12px 8px;
+    }
+    
+    .ti {
+        font-size: 20px;
+    }
+    
+    .tl {
+        font-size: 11px;
+    }
+    
+    /* Stats grid */
+    .sg {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+    
+    .sc {
+        padding: 14px;
+    }
+    
+    .slb {
+        font-size: 10px;
+    }
+    
+    .sv {
+        font-size: 24px;
+    }
+    
+    /* Page header */
+    .ph {
+        margin-bottom: 16px;
+    }
+    
+    .phl .pt {
+        font-size: 20px;
+    }
+    
+    .phl .ps {
+        font-size: 12px;
+    }
+    
+    /* Workflow banner */
+    .wf-banner {
+        padding: 14px 16px;
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .wf-icon {
+        font-size: 20px;
+    }
+    
+    .wf-title {
+        font-size: 13px;
+    }
+    
+    .wf-steps {
+        gap: 6px;
+    }
+    
+    .wf-step {
+        font-size: 10px;
+        padding: 3px 10px;
+    }
+    
+    /* Charts */
+    .cr {
+        grid-template-columns: 1fr;
+        gap: 14px;
+    }
+    
+    .cc {
+        padding: 16px;
+    }
+    
+    .ct {
+        font-size: 13px;
+    }
+    
+    .cs {
+        font-size: 10px;
+    }
+    
+    /* Year-end banner */
+    .yeb {
+        padding: 20px;
+    }
+    
+    .yet {
+        font-size: 11px;
+    }
+    
+    .yeh {
+        font-size: 18px;
+    }
+    
+    .ym {
+        flex-direction: column;
+        gap: 16px;
+    }
+    
+    .yv {
+        font-size: 28px;
+    }
+    
+    /* Tables */
+    .tc {
+        overflow-x: auto;
+    }
+    
+    .th2 {
+        padding: 12px 16px;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+    
+    .tb2 {
+        width: 100%;
+        justify-content: space-between;
+    }
+    
+    table {
+        min-width: 600px;
+    }
+    
+    th, td {
+        padding: 8px 12px;
+        font-size: 11px;
+    }
+    
+    /* Tabs */
+    .tabs {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    .tab {
+        font-size: 11px;
+        padding: 7px;
+        white-space: nowrap;
+    }
+    
+    /* Form card */
+    .fcard {
+        padding: 20px;
+        max-width: 100%;
+    }
+    
+    .ft {
+        font-size: 15px;
+    }
+    
+    .fsub {
+        font-size: 11px;
+    }
+    
+    /* Buttons */
+    .ba2, .bico, .bgreen, .bred, .bamb {
+        font-size: 12px;
+        padding: 9px 16px;
+    }
+    
+    .bsm {
+        font-size: 10px;
+        padding: 5px 10px;
+    }
+    
+    /* Steps */
+    .steps {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        padding-bottom: 8px;
+    }
+    
+    .stc {
+        width: 22px;
+        height: 22px;
+        font-size: 10px;
+    }
+    
+    .stl {
+        font-size: 10px;
+        white-space: nowrap;
+    }
+    
+    .sline {
+        min-width: 12px;
+    }
+    
+    /* Review cards */
+    .review-card {
+        padding: 16px;
+    }
+    
+    .rc-body {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+    
+    .rc-id {
+        font-size: 13px;
+    }
+    
+    .rc-flags {
+        padding: 8px 12px;
+    }
+    
+    .rc-flag {
+        font-size: 11px;
+    }
+    
+    .rc-actions {
+        gap: 6px;
+    }
+    
+    /* Modals */
+    .modal-overlay {
+        padding: 12px;
+    }
+    
+    .modal-box {
+        max-height: 85vh;
+    }
+    
+    .modal-head {
+        padding: 16px 20px 14px;
+    }
+    
+    .modal-title {
+        font-size: 15px;
+    }
+    
+    .modal-body {
+        padding: 16px 20px;
+    }
+    
+    .modal-foot {
+        padding: 12px 20px;
+        flex-wrap: wrap;
+    }
+    
+    .case-stat-row {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+    
+    /* Notifications panel */
+    #notifPanel {
+        width: 100%;
+        max-width: 340px;
+        right: 8px;
+        top: 68px;
+    }
+    
+    /* Settings panel */
+    #settingsPanel {
+        width: 100%;
+        max-width: 280px;
+        right: 8px;
+        top: 68px;
+    }
+    
+    /* Shortcuts modal */
+    .shcard {
+        width: 100%;
+        max-width: 100%;
+        padding: 24px 20px;
+    }
+    
+    .shrow {
+        font-size: 11px;
+        padding: 6px 0;
+    }
+    
+    .kbd {
+        font-size: 9px;
+        padding: 1px 4px;
+    }
+    
+    /* Profile modal */
+    .prcard {
+        width: 100%;
+        max-width: 100%;
+        padding: 24px 20px;
+    }
+    
+    .prav {
+        width: 60px;
+        height: 60px;
+        font-size: 24px;
+    }
+    
+    /* Toast */
+    #toast {
+        bottom: 70px;
+        left: 50%;
+        transform: translateX(-50%);
+        max-width: calc(100% - 32px);
+        font-size: 12px;
+        padding: 8px 16px;
+    }
+    
+    /* Chatbot */
+    #chatFab {
+        width: 48px;
+        height: 48px;
+        bottom: 20px;
+        right: 20px;
+        font-size: 20px;
+    }
+    
+    #chatWin {
+        width: 100%;
+        max-width: calc(100% - 16px);
+        height: 480px;
+        bottom: 76px;
+        right: 8px;
+        left: 8px;
+    }
+    
+    .cha {
+        padding: 10px 12px;
+    }
+    
+    .chav {
+        width: 26px;
+        height: 26px;
+        font-size: 12px;
+    }
+    
+    .chn {
+        font-size: 12px;
+    }
+    
+    .chs {
+        font-size: 10px;
+    }
+    
+    .msgs {
+        padding: 10px;
+    }
+    
+    .cb {
+        font-size: 11px;
+        padding: 7px 10px;
+    }
+    
+    .ctime {
+        font-size: 9px;
+    }
+    
+    .chip {
+        font-size: 10px;
+        padding: 3px 8px;
+    }
+    
+    .chfoot {
+        padding: 8px 10px;
+    }
+    
+    #chatIn {
+        font-size: 11px;
+        padding: 6px 10px;
+    }
+    
+    #chatBtn {
+        width: 30px;
+        height: 30px;
+        font-size: 12px;
+    }
+    
+    /* Sidebar footer */
+    .sf {
+        padding: 12px 16px;
+    }
+    
+    .uc {
+        padding: 8px;
+    }
+    
+    .av {
+        width: 30px;
+        height: 30px;
+        font-size: 11px;
+    }
+    
+    .un {
+        font-size: 12px;
+    }
+    
+    .ur {
+        font-size: 9px;
+    }
+    
+    .bl {
+        font-size: 10px;
+        padding: 6px;
+    }
+    
+    /* Risk panel */
+    .rp {
+        padding: 12px;
+    }
+    
+    .rpt {
+        font-size: 10px;
+    }
+    
+    /* Alerts */
+    .alert {
+        padding: 10px 13px;
+        font-size: 12px;
+    }
+}
+
+/* Small Mobile Styles (max-width: 480px) */
+@media screen and (max-width: 480px) {
+    .main {
+        padding: 65px 12px 12px;
+    }
+    
+    .topbar {
+        padding: 0 12px 0 56px;
+        height: 56px;
+    }
+    
+    .ts input {
+        font-size: 13px;
+    }
+    
+    .ib {
+        width: 32px;
+        height: 32px;
+        font-size: 14px;
+    }
+    
+    .ac {
+        padding: 24px 20px;
+    }
+    
+    .at {
+        font-size: 20px;
+    }
+    
+    .brand {
+        gap: 10px;
+    }
+    
+    .bi {
+        width: 36px;
+        height: 36px;
+        font-size: 17px;
+    }
+    
+    .bn {
+        font-size: 18px;
+    }
+    
+    .bs {
+        font-size: 9px;
+    }
+    
+    .phl .pt {
+        font-size: 18px;
+    }
+    
+    .sc {
+        padding: 12px;
+    }
+    
+    .sv {
+        font-size: 22px;
+    }
+    
+    .slb {
+        font-size: 9px;
+    }
+    
+    .sico {
+        font-size: 18px;
+    }
+    
+    .wf-banner {
+        padding: 12px 14px;
+    }
+    
+    .wf-title {
+        font-size: 12px;
+    }
+    
+    .wf-step {
+        font-size: 9px;
+        padding: 2px 8px;
+    }
+    
+    .yeb {
+        padding: 16px;
+    }
+    
+    .yeh {
+        font-size: 16px;
+    }
+    
+    .yv {
+        font-size: 24px;
+    }
+    
+    .yl {
+        font-size: 10px;
+    }
+    
+    .fcard {
+        padding: 16px;
+    }
+    
+    .ft {
+        font-size: 14px;
+    }
+    
+    input[type=text],
+    input[type=password],
+    select,
+    textarea {
+        font-size: 14px;
+        padding: 10px 13px;
+    }
+    
+    .bp {
+        font-size: 13px;
+        padding: 12px;
+    }
+    
+    .ba2 {
+        font-size: 11px;
+        padding: 8px 14px;
+    }
+    
+    .review-card {
+        padding: 14px;
+    }
+    
+    .rc-id {
+        font-size: 12px;
+    }
+    
+    .modal-head {
+        padding: 14px 16px 12px;
+    }
+    
+    .modal-body {
+        padding: 14px 16px;
+    }
+    
+    .modal-foot {
+        padding: 10px 16px;
+    }
+    
+    #chatWin {
+        height: 420px;
+    }
+    
+    .sidebar {
+        width: 260px;
+    }
+    
+    .sbb {
+        padding: 16px 18px;
+    }
+    
+    .ni {
+        padding: 9px 18px;
+        font-size: 12px;
+    }
+    
+    .nicon {
+        font-size: 14px;
+    }
+}
+
+/* Landscape orientation adjustments */
+@media screen and (max-height: 600px) and (orientation: landscape) {
+    .aw {
+        padding: 12px;
+    }
+    
+    .ac {
+        padding: 20px;
+        max-height: 90vh;
+        overflow-y: auto;
+    }
+    
+    .brand {
+        margin-bottom: 16px;
+    }
+    
+    .at {
+        font-size: 18px;
+        margin-bottom: 3px;
+    }
+    
+    .as {
+        margin-bottom: 16px;
+    }
+    
+    .tt {
+        margin-bottom: 16px;
+    }
+    
+    .fg {
+        margin-bottom: 12px;
+    }
+    
+    .bp {
+        padding: 10px;
+    }
+    
+    .sw {
+        margin-top: 12px;
+    }
+}
+
+/* Touch device optimizations */
+@media (hover: none) and (pointer: coarse) {
+    /* Increase touch targets */
+    .ni,
+    .tab,
+    .ib,
+    .chip,
+    button,
+    .al {
+        min-height: 44px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    /* Remove hover effects on touch devices */
+    .tb:hover,
+    .ni:hover,
+    .ib:hover,
+    .chip:hover,
+    .bsm:hover,
+    .bico:hover,
+    .bgreen:hover,
+    .bred:hover,
+    .bamb:hover {
+        transform: none;
+    }
+    
+    /* Add active states for better feedback */
+    .tb:active,
+    .ni:active,
+    .ib:active,
+    .chip:active,
+    button:active {
+        opacity: 0.7;
+        transform: scale(0.98);
+    }
+}
+
+/* Print styles */
+@media print {
+    .sidebar,
+    .topbar,
+    #chatFab,
+    #chatWin,
+    .mobile-menu-toggle,
+    .mobile-overlay {
+        display: none !important;
+    }
+    
+    .main {
+        margin-left: 0;
+        padding: 0;
+    }
+    
+    .pg {
+        background: white;
+        color: black;
+    }
+}
